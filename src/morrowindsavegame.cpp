@@ -43,7 +43,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   
   file.readImage(128, 128, 0, 1);
   
-  this->m_Screenshot=this->m_Screenshot.invertPixels(InvertRgba); //not sure about this one
+  this->m_Screenshot=this->m_Screenshot.invertPixels(QImage::InvertRgba); //not sure about this one
   
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
