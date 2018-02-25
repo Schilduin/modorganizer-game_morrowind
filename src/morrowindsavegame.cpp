@@ -6,6 +6,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   GamebryoSaveGame(fileName, game)
 {
   FileWrapper file(this, "TES3");
+  file.setBZString(true);
   //file.skip<unsigned long>(); // header size
   //file.skip<unsigned long>(); // header version
   file.skip<unsigned long>(79); //Mostly empty header Data
@@ -28,7 +29,6 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   }
   
   file.skip<unsigned char>(31);
-  file.setBZString(true);
   file.read(m_PCLocation);
   
   file.skip<unsigned char>();
