@@ -16,8 +16,8 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   this->m_Plugins.reserve(count);
   std::vector<char> buffer(255);
   file.skip<unsigned short>();
-  for (std::size_t i = 0; i < count; ++i) {
-	  file.skip<unsigned long>();
+  file.read(buffer.data(), 4);
+  while QString::fromLatin1(buffer.data(), 4)=="MAST" {
 	  uint8_t len;
 	  file.read(len);
 	  file.skip<unsigned char>(3);
@@ -26,22 +26,27 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
 	  name=QString::fromLatin1(buffer.data(), len-1);
 	  file.skip<unsigned char>();
 	  file.skip<unsigned long>(4);
+	  file.read(buffer.data(), 4);
 	  this->m_Plugins.push_back(name);
-	  m_PCLevel=len;
   }
   
-  file.skip<unsigned char>(32);
-  file.read(m_PCLocation);
+  file.skip<unsigned long>(7);
+  file.read(buffer.data(), 64);
+  m_PCLocation=QString::fromLatin1(buffer.data(), 64).trimmed();
   
-  file.skip<unsigned char>();
+  file.skip<unsigned long>();
   file.read(buffer.data(), 32);
   
-  m_PCName=QString::fromLatin1(buffer.data(), 32);
+  m_PCName=QString::fromLatin1(buffer.data(), 32).trimmed();
+  
+  file.skip<unsigned long>(9);
+  
+  file.readImage(128, 128, 0, 1);
   
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
   
-  //m_PCLevel=1; //Placeholder
+  m_PCLevel=1; //Placeholder
   
   /*file.skip<unsigned long>(8); //Record SCRD
   file.skip<unsigned long>(16385); //Record SCRS
