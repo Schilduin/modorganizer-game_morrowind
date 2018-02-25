@@ -17,7 +17,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   std::vector<char> buffer(255);
   file.skip<unsigned short>();
   file.read(buffer.data(), 4);
-  while QString::fromLatin1(buffer.data(), 4)=="MAST" {
+  while(QString::fromLatin1(buffer.data(), 4)=="MAST"){
 	  uint8_t len;
 	  file.read(len);
 	  file.skip<unsigned char>(3);
