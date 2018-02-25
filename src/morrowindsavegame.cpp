@@ -22,8 +22,8 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
 	  file.read(len);
 	  file.skip<unsigned char>(3);
       QString name;
-      file.read(buffer.data(), len);
-	  name=QString::fromLatin1(buffer.data(), len);
+      file.read(buffer.data(), len-1);
+	  name=QString::fromLatin1(buffer.data(), len-1);
 	  file.skip<unsigned char>();
 	  file.skip<unsigned long>(4);
 	  this->m_Plugins.push_back(name);
