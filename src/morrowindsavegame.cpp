@@ -15,14 +15,16 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   uint8_t count;
   file.read(count);
   this->m_Plugins.reserve(count);
+  std::vector<char> buffer(255);
   file.skip<unsigned short>();
   for (std::size_t i = 0; i < count; ++i) {
 	  file.skip<unsigned long>();
+	  uint8_t len;
+	  file.read(len);
+	  file.skip<unsigned char>(3);
       QString name;
-      file.read(name);
-	  uint8_t tmp;
-	  file.read(tmp);
-	  name+=tmp;
+      file.read(buffer.data(), len);
+	  name=QString::fromLatin1(buffer.data(), len);
 	  file.skip<unsigned char>();
 	  file.skip<unsigned long>(4);
 	  this->m_Plugins.push_back(name);
@@ -32,7 +34,6 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   file.read(m_PCLocation);
   
   file.skip<unsigned char>();
-  std::vector<char> buffer(32);
   file.read(buffer.data(), 32);
   
   m_PCName=QString::fromLatin1(buffer.data(), 32);
