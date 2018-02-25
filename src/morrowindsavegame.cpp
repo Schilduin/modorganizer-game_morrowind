@@ -39,9 +39,11 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   
   m_PCName=QString::fromLatin1(buffer.data(), 32).trimmed();
   
-  file.skip<unsigned char>(35);
+  file.skip<unsigned char>(36);
   
   file.readImage(128, 128, 0, 1);
+  
+  this->m_Screenshot=this->m_Screenshot.invertPixels(InvertRgba); //not sure about this one
   
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
@@ -53,7 +55,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   //file.skip<unsigned char>(8445); //Globals
   
   //Globals, Scripts, Regions
-  file.skip<unsigned char>();
+  //file.skip<unsigned char>();
   std::vector<char> buff(4);
   file.read(buff.data(), 4);
   while(QString::fromLatin1(buff.data(), 4)=="GLOB"||QString::fromLatin1(buff.data(), 4)=="SCPT"||QString::fromLatin1(buff.data(), 4)=="REGN")
@@ -71,7 +73,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   {
     uint8_t len;
 	file.read(len);
-	file.skip<unsigned char>(11+len);
+	file.skip<unsigned char>(3+len);
 	file.read(buff.data(), 4);
   }
   
