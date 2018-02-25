@@ -39,7 +39,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   
   m_PCName=QString::fromLatin1(buffer.data(), 32).trimmed();
   
-  file.skip<unsigned long>(9);
+  file.skip<unsigned char>(35);
   
   file.readImage(128, 128, 0, 1);
   
@@ -48,11 +48,12 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   
   m_PCLevel=1; //Placeholder
   
-  /*file.skip<unsigned long>(8); //Record SCRD
-  file.skip<unsigned long>(16385); //Record SCRS
+  //file.skip<unsigned long>(8); //Record SCRD
+  //file.skip<unsigned long>(16385); //Record SCRS
   //file.skip<unsigned char>(8445); //Globals
   
   //Globals, Scripts, Regions
+  file.skip<unsigned char>();
   std::vector<char> buff(4);
   file.read(buff.data(), 4);
   while(QString::fromLatin1(buff.data(), 4)=="GLOB"||QString::fromLatin1(buff.data(), 4)=="SCPT"||QString::fromLatin1(buff.data(), 4)=="REGN")
@@ -75,7 +76,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   }
   
   file.skip<unsigned char>(7);
-  file.read(m_PCLevel); */
+  file.read(m_PCLevel); 
   
   m_SaveNumber=fileName.chopped(4).right(4).toInt();
 }
