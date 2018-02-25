@@ -6,7 +6,6 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   GamebryoSaveGame(fileName, game)
 {
   FileWrapper file(this, "TES3");
-  file.setBZString(true);
   //file.skip<unsigned long>(); // header size
   //file.skip<unsigned long>(); // header version
   file.skip<unsigned long>(79); //Mostly empty header Data
@@ -28,9 +27,10 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
 	  file.skip<unsigned char>();
 	  file.skip<unsigned long>(4);
 	  this->m_Plugins.push_back(name);
+	  m_PCLevel=len;
   }
   
-  file.skip<unsigned char>(31);
+  file.skip<unsigned char>(32);
   file.read(m_PCLocation);
   
   file.skip<unsigned char>();
@@ -41,7 +41,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
   
-  m_PCLevel=1; //Placeholder
+  //m_PCLevel=1; //Placeholder
   
   /*file.skip<unsigned long>(8); //Record SCRD
   file.skip<unsigned long>(16385); //Record SCRS
