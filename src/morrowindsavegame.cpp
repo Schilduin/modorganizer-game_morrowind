@@ -1,6 +1,7 @@
 #include "morrowindsavegame.h"
 
 #include <Windows.h>
+#include <QPixmap>
 
 MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGame const *game) :
   GamebryoSaveGame(fileName, game)
@@ -43,12 +44,18 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   
   file.readImage(128, 128, 0, 1);
   
-  this->m_Screenshot=this->m_Screenshot.invertPixels(QImage::InvertRgba); //not sure about this one
-  
+  //Color correction, I am unable to get it to work in a more efficient way
+  this->m_Screenshot=this->m_Screenshot.rgbSwapped();
+  unsigned int rgb;
+
+  for(int y=0;y<this->m_Screenshot.height();y++){
+    for(int x=0;x<this->m_Screenshot.width();x++){
+      rgb=this->m_Screenshot.pixel(x,y);
+      this->m_Screenshot.setPixel(x,y,qRgba(qRed(rgb),qGreen(rgb),qBlue(rgb),255));
+    }
+  }
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
-  
-  m_PCLevel=1; //Placeholder
   
   //file.skip<unsigned long>(8); //Record SCRD
   //file.skip<unsigned long>(16385); //Record SCRS
@@ -66,10 +73,10 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
 	file.read(buff.data(), 4);
   }
   
-  file.skip<unsigned long>(4);
+  file.skip<unsigned long>(3);
   
   file.read(buff.data(), 4);
-  while(QString::fromLatin1(buff.data(), 4)=="NAME"||QString::fromLatin1(buff.data(), 4)=="FNAME"||QString::fromLatin1(buff.data(), 4)=="RNAM"||QString::fromLatin1(buff.data(), 4)=="CNAM"||QString::fromLatin1(buff.data(), 4)=="ANAM"||QString::fromLatin1(buff.data(), 4)=="BNAM"||QString::fromLatin1(buff.data(), 4)=="KNAM")
+  while(QString::fromLatin1(buff.data(), 4)=="NAME"||QString::fromLatin1(buff.data(), 4)=="FNAM"||QString::fromLatin1(buff.data(), 4)=="RNAM"||QString::fromLatin1(buff.data(), 4)=="CNAM"||QString::fromLatin1(buff.data(), 4)=="ANAM"||QString::fromLatin1(buff.data(), 4)=="BNAM"||QString::fromLatin1(buff.data(), 4)=="KNAM")
   {
     uint8_t len;
 	file.read(len);
@@ -77,7 +84,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
 	file.read(buff.data(), 4);
   }
   
-  file.skip<unsigned char>(7);
+  file.skip<unsigned long>();
   file.read(m_PCLevel); 
   
   m_SaveNumber=fileName.chopped(4).right(4).toInt();
