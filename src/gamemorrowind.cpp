@@ -100,7 +100,7 @@ QString GameMorrowind::description() const
 
 MOBase::VersionInfo GameMorrowind::version() const
 {
-  return VersionInfo(0, 1, 0, VersionInfo::RELEASE_FINAL);
+  return VersionInfo(0, 1, 2, VersionInfo::RELEASE_FINAL);
 }
 
 bool GameMorrowind::isActive() const

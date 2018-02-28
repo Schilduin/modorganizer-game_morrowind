@@ -19,9 +19,8 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   file.skip<unsigned short>();
   file.read(buffer.data(), 4);
   while(QString::fromLatin1(buffer.data(), 4)=="MAST"){
-	  uint8_t len;
+	  uint32_t len;
 	  file.read(len);
-	  file.skip<unsigned char>(3);
       QString name;
       file.read(buffer.data(), len-1);
 	  name=QString::fromLatin1(buffer.data(), len-1);
@@ -54,6 +53,7 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
       this->m_Screenshot.setPixel(x,y,qRgba(qRed(rgb),qGreen(rgb),qBlue(rgb),255));
     }
   }
+  this->m_Screenshot=this->m_Screenshot.scaled(252,192);
   //definitively have to use another method to access the player level
   //it is stored in the fifth byte of the NPDT subrecord of the first NPC_ record
   
@@ -65,27 +65,36 @@ MorrowindSaveGame::MorrowindSaveGame(QString const &fileName, MOBase::IPluginGam
   //file.skip<unsigned char>();
   std::vector<char> buff(4);
   file.read(buff.data(), 4);
-  while(QString::fromLatin1(buff.data(), 4)=="GLOB"||QString::fromLatin1(buff.data(), 4)=="SCPT"||QString::fromLatin1(buff.data(), 4)=="REGN")
+  while(QString::fromLatin1(buff.data(), 4)!="NPC_")
   {
-    uint8_t len;
+    uint32_t len;
 	file.read(len);
-	file.skip<unsigned char>(11+len);
+	file.skip<unsigned char>(8+len);
 	file.read(buff.data(), 4);
   }
-  
-  file.skip<unsigned long>(3);
-  
-  file.read(buff.data(), 4);
-  while(QString::fromLatin1(buff.data(), 4)=="NAME"||QString::fromLatin1(buff.data(), 4)=="FNAM"||QString::fromLatin1(buff.data(), 4)=="RNAM"||QString::fromLatin1(buff.data(), 4)=="CNAM"||QString::fromLatin1(buff.data(), 4)=="ANAM"||QString::fromLatin1(buff.data(), 4)=="BNAM"||QString::fromLatin1(buff.data(), 4)=="KNAM")
-  {
-    uint8_t len;
+  while(QString::fromLatin1(buff.data(), 4)=="NPC_"){
+    uint32_t size;
+    file.read(size);
+    file.skip<unsigned long>(3);
+	uint32_t len;
 	file.read(len);
-	file.skip<unsigned char>(3+len);
-	file.read(buff.data(), 4);
+	file.read(buffer.data(), len);
+	if(QString::fromLatin1(buffer.data(), len-1)=="player"){
+	  file.read(buff.data(), 4);
+	  while(QString::fromLatin1(buff.data(), 4)!="NPDT")
+      {
+        uint32_t len;
+	    file.read(len);
+	    file.skip<unsigned char>(len);
+	    file.read(buff.data(), 4);
+      }
+	  file.skip<unsigned long>();
+      file.read(m_PCLevel); 
+	}
+	else
+	{
+	  file.skip<unsigned char>(size-len-8);
+	}
   }
-  
-  file.skip<unsigned long>();
-  file.read(m_PCLevel); 
-  
   m_SaveNumber=fileName.chopped(4).right(4).toInt();
 }
